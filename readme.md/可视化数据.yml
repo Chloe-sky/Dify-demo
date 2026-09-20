@@ -1,0 +1,279 @@
+app:
+  description: 可视化数据
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: workflow
+  name: 可视化数据
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/deepseek:0.0.20@850efe73fb62bbe7ab2229116086596596297a77174fb86f73e1363b99a24116
+    version: null
+kind: app
+version: 0.7.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload: {}
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: document-extractor
+      id: 1788880155288-source-1788880201545-target
+      source: '1788880155288'
+      sourceHandle: source
+      target: '1788880201545'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1788880177751-source-1788881940657-target
+      source: '1788880177751'
+      sourceHandle: source
+      target: '1788881940657'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: document-extractor
+        targetType: llm
+      id: 1788880201545-source-1788880177751-target
+      source: '1788880201545'
+      sourceHandle: source
+      target: '1788880177751'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: 1788881940657--1788882951464-target
+      source: '1788881940657'
+      sourceHandle: source
+      target: '1788882951464'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - document
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          default: ''
+          hide: false
+          hint: ''
+          label: filefile
+          options: []
+          placeholder: ''
+          required: true
+          type: file
+          variable: file
+      height: 108
+      id: '1788880155288'
+      position:
+        x: 43
+        y: 46
+      positionAbsolute:
+        x: 43
+        y: 46
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 0
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1788880201545'
+          - text
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v4-pro
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: 9d8409c5-6eeb-4790-b1ed-9941268e9233
+          role: system
+          text: '你是数据整理助手。将提取出的表格数据整理为如下 JSON 格式，只输出 JSON，不要输出任何其他文字、思考过程或代码块标记： {"dates":
+            ["07/01", ...], "A": [...], "B": [...], "C": [...], "D": [...]} 其中 dates
+            为 7月1日到7月31日共31个日期，A/B/C/D 为四个产品对应每日销量。
+
+            {{#context#}}'
+        - id: 5be12b36-aec3-4bef-9309-f9fd611baa83
+          role: user
+          text: ''
+        selected: false
+        structured_output_enabled: false
+        title: LLM整理格式
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1788880177751'
+      position:
+        x: 51
+        y: 322
+      positionAbsolute:
+        x: 51
+        y: 322
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+      zIndex: 0
+    - data:
+        is_array_file: false
+        selected: false
+        title: 文档提取器
+        type: document-extractor
+        variable_selector:
+        - '1788880155288'
+        - file
+      height: 103
+      id: '1788880201545'
+      position:
+        x: 51
+        y: 180
+      positionAbsolute:
+        x: 51
+        y: 180
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+      zIndex: 0
+    - data:
+        code: "import json\nimport re\n\ndef main(data: str) -> dict:\n    try:\n\
+          \        text = data or \"\"\n        # 剥离 think/reasoning 标签内容\n      \
+          \  text = re.sub(r\"<think>.*?</think>\", \"\", text, flags=re.S)\n    \
+          \    # 只保留第一个 { 到最后一个 } 之间的 JSON\n        start = text.find(\"{\")\n   \
+          \     end = text.rfind(\"}\")\n        if start == -1 or end == -1 or end\
+          \ <= start:\n            return {\"echarts_option\": \"数据解析失败，请检查输入\"}\n\
+          \        payload = json.loads(text[start:end + 1])\n\n        dates = payload.get(\"\
+          dates\", [])\n        a = payload.get(\"A\", [])\n        b = payload.get(\"\
+          B\", [])\n        c = payload.get(\"C\", [])\n        d = payload.get(\"\
+          D\", [])\n\n        option = {\n            \"backgroundColor\": \"transparent\"\
+          ,\n            \"title\": {\n                \"text\": \"乌龙奶茶色口红 7月每日销量（产品A/B/C/D）\"\
+          ,\n                \"left\": \"center\",\n                \"textStyle\"\
+          : {\"color\": \"#5C3A21\", \"fontSize\": 15, \"fontWeight\": 600}\n    \
+          \        },\n            \"tooltip\": {\n                \"trigger\": \"\
+          axis\",\n                \"triggerOn\": \"click\",\n                \"renderMode\"\
+          : \"richText\",\n                \"confine\": True,\n                \"\
+          textStyle\": {\"fontSize\": 10, \"lineHeight\": 14},\n                \"\
+          padding\": [6, 8]\n            },\n            \"legend\": {\n         \
+          \       \"top\": 36,\n                \"itemWidth\": 14,\n             \
+          \   \"itemHeight\": 8,\n                \"textStyle\": {\"color\": \"#6B7280\"\
+          , \"fontSize\": 11}\n            },\n            \"grid\": {\n         \
+          \       \"left\": 44,\n                \"right\": 20,\n                \"\
+          top\": 84,\n                \"bottom\": 48,\n                \"containLabel\"\
+          : True\n            },\n            \"xAxis\": {\n                \"type\"\
+          : \"category\",\n                \"name\": \"日期\",\n                \"data\"\
+          : dates,\n                \"axisLabel\": {\"color\": \"#555\", \"fontSize\"\
+          : 10, \"rotate\": 30, \"hideOverlap\": True}\n            },\n         \
+          \   \"yAxis\": {\n                \"type\": \"value\",\n               \
+          \ \"name\": \"销量（支）\",\n                \"axisLabel\": {\"color\": \"#555\"\
+          , \"fontSize\": 11}\n            },\n            \"series\": [\n       \
+          \         {\"name\": \"产品A\", \"type\": \"bar\", \"data\": a, \"itemStyle\"\
+          : {\"color\": \"#A67B5B\"}, \"barMaxWidth\": 16},\n                {\"name\"\
+          : \"产品B\", \"type\": \"bar\", \"data\": b, \"itemStyle\": {\"color\": \"\
+          #C89B7B\"}, \"barMaxWidth\": 16},\n                {\"name\": \"产品C\", \"\
+          type\": \"bar\", \"data\": c, \"itemStyle\": {\"color\": \"#E3C9B0\"}, \"\
+          barMaxWidth\": 16},\n                {\"name\": \"产品D\", \"type\": \"bar\"\
+          , \"data\": d, \"itemStyle\": {\"color\": \"#D9B999\"}, \"barMaxWidth\"\
+          : 16}\n            ]\n        }\n\n        # 关键：echarts 代码块包裹，Dify 结果页才会渲染成柱状图\n\
+          \        code_block = \"```echarts\\n\" + json.dumps(option, ensure_ascii=False)\
+          \ + \"\\n```\"\n        return {\"echarts_option\": code_block}\n    except\
+          \ Exception:\n        return {\"echarts_option\": \"数据解析失败，请检查输入\"}"
+        code_language: python3
+        desc: 【·
+        outputs:
+          echarts_option:
+            children: null
+            type: string
+        selected: false
+        title: 代码生成echarts
+        type: code
+        variables:
+        - value_selector:
+          - '1788880177751'
+          - text
+          value_type: string
+          variable: data
+      height: 79
+      id: '1788881940657'
+      position:
+        x: 43
+        y: 449
+      positionAbsolute:
+        x: 43
+        y: 449
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+      zIndex: 0
+    - data:
+        outputs:
+        - value_selector:
+          - '1788881940657'
+          - echarts_option
+          value_type: string
+          variable: output
+        selected: false
+        title: 输出
+        type: end
+      height: 87
+      id: '1788882951464'
+      position:
+        x: 51
+        y: 558
+      positionAbsolute:
+        x: 51
+        y: 558
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+      zIndex: 0
+    viewport:
+      x: 168.3884650409869
+      y: 6.812896339088127
+      zoom: 0.8373850434927879
+  rag_pipeline_variables: []
